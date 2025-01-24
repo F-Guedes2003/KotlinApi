@@ -15,6 +15,8 @@ class BrandService(@Autowired val repository: BrandRepository) {
 
     fun getAll(): List<Brand> = repository.findAll();
 
+    fun getOneBrand(id: String): Brand? = repository.findById(id).orElseThrow { ElementNotFoundException("Element with the provided id not found!") };
+
     fun create(brand: Brand): ResponseEntity<APIResponse> {
         if(brand.name.isNullOrBlank()) throw InvalidDataFormatException("Name field must be filled!");
 

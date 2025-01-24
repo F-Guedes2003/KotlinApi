@@ -20,6 +20,9 @@ class BrandController(@Autowired val service: BrandService){
     @GetMapping()
     fun getBrands() = service.getAll();
 
+    @GetMapping(path = ["{id}"])
+    fun getOneBrand(@PathVariable id: String) = service.getOneBrand(id);
+
     @PostMapping()
     fun createBrand(@RequestBody brand: Brand): ResponseEntity<APIResponse> = service.create(brand);
 
