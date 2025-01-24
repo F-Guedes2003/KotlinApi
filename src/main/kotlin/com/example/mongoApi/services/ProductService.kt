@@ -22,6 +22,9 @@ class ProductService(
 
     fun getAll(): MutableList<Product> = repo.findAll();
 
+    fun getOne(id: String): Product? =
+        repo.findById(id).orElseThrow{ ElementNotFoundException("Element with the provideded if not found") };
+
     fun create(request: ProductRequestBlueprint): ResponseEntity<APIResponse> {
         val brand = brandRepo.findBrandByName(request.manufacturerName)
             ?: throw ElementNotFoundException("Manufacturer does not exists");
