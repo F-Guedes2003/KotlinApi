@@ -5,10 +5,13 @@ import com.example.mongoApi.exceptions.ElementNotFoundException
 import com.example.mongoApi.exceptions.InvalidDataFormatException
 import com.example.mongoApi.models.Brand
 import com.example.mongoApi.repository.BrandRepository
+import org.apache.coyote.Response
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.PathVariable
 
 @Service
 class BrandService(@Autowired val repository: BrandRepository) {
@@ -50,5 +53,20 @@ class BrandService(@Autowired val repository: BrandRepository) {
         )
 
         return ResponseEntity(response, HttpStatus.OK);
+    }
+
+    fun delete(id: String): ResponseEntity<APIResponse> {
+        repository.findById(id).orElseThrow{ ElementNotFoundException("Element with the provided id not found!") }
+        repository.deleteById(id);
+
+        val response = APIResponse(
+            "Brand removed with success!",
+            HttpStatus.OK.value()
+        )
+
+        return ResponseEntity(
+            response,
+            HttpStatus.OK
+        );
     }
 }
