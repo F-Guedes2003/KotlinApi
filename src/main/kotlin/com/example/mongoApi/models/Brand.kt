@@ -5,7 +5,7 @@ import org.springframework.data.mongodb.core.mapping.Document
 
 @Document
 class Brand(
-    @Id val id: String,
+    @Id var id: String? = null,
     var name: String,
     var headquarter: String
 )

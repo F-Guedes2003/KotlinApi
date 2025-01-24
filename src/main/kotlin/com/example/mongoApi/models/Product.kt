@@ -6,7 +6,7 @@ import java.time.LocalDateTime
 
 @Document
 class Product(
-    @Id val id: String,
+    @Id val id: String? = null,
     var name: String,
     var manufacturer: Brand,
     var productionDate: LocalDateTime,
