@@ -5,6 +5,6 @@ import java.time.LocalDateTime
 
 class APIResponse(
     message: String,
-    status: HttpStatus,
+    status: Int,
     timestamp: LocalDateTime = LocalDateTime.now()
 )

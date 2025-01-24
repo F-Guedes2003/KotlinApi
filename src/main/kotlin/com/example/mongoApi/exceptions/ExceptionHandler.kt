@@ -15,4 +15,11 @@ class ExceptionHandler {
 
         return ResponseEntity(exception, HttpStatus.BAD_REQUEST)
     }
+
+    @ExceptionHandler(value = [InvalidDataFormatException::class])
+    fun handleInvalidDataFormatException(e: InvalidDataFormatException): ResponseEntity<APIException> {
+        val exception = APIException(e.message, HttpStatus.BAD_REQUEST,)
+
+        return ResponseEntity(exception, HttpStatus.BAD_REQUEST)
+    }
 }
