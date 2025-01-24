@@ -1,6 +1,7 @@
 package com.example.mongoApi.services
 
 import com.example.mongoApi.APIResponse
+import com.example.mongoApi.exceptions.ElementNotFoundException
 import com.example.mongoApi.exceptions.InvalidDataFormatException
 import com.example.mongoApi.models.Brand
 import com.example.mongoApi.repository.BrandRepository
@@ -32,7 +33,20 @@ class BrandService(@Autowired val repository: BrandRepository) {
         )
     };
 
-    fun editBrand(request: Brand, id: String) {
-        var brand = repository.findById(id).orElseThrow { IllegalArgumentException(); };
+    fun editBrand(request: Brand, id: String): ResponseEntity<APIResponse> {
+        var brand = repository.findById(id).orElseThrow { ElementNotFoundException("Element with the provided id don't exists!"); };
+
+        if(!request.name.isNullOrBlank()) brand.name = request.name;
+
+        if(!request.headquarter.isNullOrBlank()) brand.headquarter = request.headquarter;
+
+        repository.save(brand);
+
+        val response = APIResponse(
+            "Brand updated with success!",
+            HttpStatus.OK.value()
+        )
+
+        return ResponseEntity(response, HttpStatus.OK);
     }
 }

@@ -4,7 +4,7 @@ import org.springframework.http.HttpStatus
 import java.time.LocalDateTime
 
 class APIResponse(
-    message: String,
-    status: Int,
-    timestamp: LocalDateTime = LocalDateTime.now()
+    val message: String,
+    val status: Int,
+    val timestamp: LocalDateTime = LocalDateTime.now()
 )
