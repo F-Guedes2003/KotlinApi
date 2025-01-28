@@ -2,9 +2,11 @@ package com.example.mongoApi.services
 
 import com.example.mongoApi.APIResponse
 import com.example.mongoApi.exceptions.ElementNotFoundException
+import com.example.mongoApi.exceptions.InvalidDataFormatException
 import com.example.mongoApi.models.Brand
 import com.example.mongoApi.models.Product
 import com.example.mongoApi.models.ProductRequestBlueprint
+import com.example.mongoApi.models.ProductResponse
 import com.example.mongoApi.repository.BrandRepository
 import com.example.mongoApi.repository.ProductRepository
 import org.springframework.beans.factory.annotation.Autowired
@@ -20,20 +22,34 @@ class ProductService(
     @Autowired val brandRepo: BrandRepository
 ) {
 
-    fun getAll(): MutableList<Product> = repo.findAll();
+    fun getAll(): List<ProductResponse> {
+        val products = repo.findAll();
+
+        return products.map { e ->
+            val brand = brandRepo.findById(e.manufacturer).orElseThrow {ElementNotFoundException("Element with the provided id does not exists")};
+            ProductResponse(e.id, e.name, brand, e.productionDate, e.available);
+         }
+    };
 
     fun getOne(id: String): Product? =
         repo.findById(id).orElseThrow{ ElementNotFoundException("Element with the provideded if not found") };
 
     fun create(request: ProductRequestBlueprint): ResponseEntity<APIResponse> {
-        val brand = brandRepo.findBrandByName(request.manufacturerName)
-            ?: throw ElementNotFoundException("Manufacturer does not exists");
+        if(request.name.isNullOrBlank()) throw InvalidDataFormatException("name field must be filled!");
+
+        if(request.productionDate == null) throw InvalidDataFormatException("Production date field must be filled!");
+
+        if(request.available == null) throw InvalidDataFormatException("Available field must be filled!");
+
+        if(request.manufacturerName.isNullOrBlank()) throw InvalidDataFormatException("Manufacturer name must be filled!");
+
+        val brand = brandRepo.findBrandByName(request.manufacturerName!!).orElseThrow { ElementNotFoundException("Element with the provided id does not exists!") }
 
         val product = Product(
-            name = request.name,
-            manufacturer = brand,
-            productionDate = request.productionDate,
-            available = request.available
+            name = request.name!!,
+            manufacturer = brand.id!!,
+            productionDate = request.productionDate!!,
+            available = request.available!!
         )
 
         repo.insert(product);
@@ -44,5 +60,29 @@ class ProductService(
             response,
             HttpStatus.CREATED
         );
+    }
+
+    fun update(id: String, request: ProductRequestBlueprint): ResponseEntity<APIResponse> {
+        val product = repo.findById(id).orElseThrow { ElementNotFoundException("Element with the provided id does not exists!") };
+
+        if(!request.name.isNullOrBlank()) product.name = request.name ?: product.name;
+
+        if(request.available != null) product.available = request.available ?: product.available;
+
+        if(request.productionDate != null) product.productionDate = request.productionDate ?: product.productionDate;
+
+        if(!request.manufacturerName.isNullOrBlank() ) {
+            val brand = brandRepo.findBrandByName(request.manufacturerName!!).orElseThrow { ElementNotFoundException("Element with the provided id does not exists") }
+
+            product.manufacturer = brand.id!!;
+        }
+
+        val response = APIResponse(
+            "Element updated with success!",
+            HttpStatus.OK.value()
+        )
+
+        return ResponseEntity(response, HttpStatus.OK)
+
     }
 }
