@@ -31,8 +31,12 @@ class ProductService(
          }
     };
 
-    fun getOne(id: String): Product? =
-        repo.findById(id).orElseThrow{ ElementNotFoundException("Element with the provideded if not found") };
+    fun getOne(id: String): ProductResponse? {
+        val product = repo.findById(id).orElseThrow{ ElementNotFoundException("Element with the provideded if not found") };
+        val brand = brandRepo.findById(product.manufacturer).orElseThrow { ElementNotFoundException("Manufacturer with the provided id not found!") };
+
+        return ProductResponse(product.id, product.name, brand, product.productionDate, product.available);
+    }
 
     fun create(request: ProductRequestBlueprint): ResponseEntity<APIResponse> {
         if(request.name.isNullOrBlank()) throw InvalidDataFormatException("name field must be filled!");
@@ -77,12 +81,24 @@ class ProductService(
             product.manufacturer = brand.id!!;
         }
 
+        repo.save(product);
+
         val response = APIResponse(
             "Element updated with success!",
             HttpStatus.OK.value()
         )
 
         return ResponseEntity(response, HttpStatus.OK)
+    }
 
+    fun delete(id: String): ResponseEntity<APIResponse> {
+        repo.findById(id).orElseThrow { ElementNotFoundException("Element with the provided id not found") }
+        repo.deleteById(id);
+        val response = APIResponse(
+            "Element removed with success!",
+            HttpStatus.OK.value()
+        )
+
+        return ResponseEntity(response, HttpStatus.OK);
     }
 }

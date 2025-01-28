@@ -3,6 +3,7 @@ package com.example.mongoApi.controllers
 import com.example.mongoApi.models.ProductRequestBlueprint
 import com.example.mongoApi.services.ProductService
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -29,4 +30,6 @@ class ProductController(
     @PutMapping(path = ["{id}"])
     fun update(@PathVariable id: String, @RequestBody request: ProductRequestBlueprint) = service.update(id, request);
 
+    @DeleteMapping(path = ["{id}"])
+    fun delete(@PathVariable id: String) = service.delete(id);
 }
