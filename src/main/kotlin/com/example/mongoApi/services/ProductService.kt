@@ -25,11 +25,8 @@ class ProductService(
     fun getAll(): List<ProductResponse> {
         val products = repo.findAll();
 
-        return products.map { e ->
-            val brand = brandRepo.findById(e.manufacturer).orElseThrow {ElementNotFoundException("Element with the provided id does not exists")};
-            ProductResponse(e.id, e.name, brand, e.productionDate, e.available);
-         }
-    };
+        return products.map { e -> getProductResponse(e); }
+    }
 
     fun getOne(id: String): ProductResponse? {
         val product = repo.findById(id).orElseThrow{ ElementNotFoundException("Element with the provideded if not found") };
@@ -101,4 +98,11 @@ class ProductService(
 
         return ResponseEntity(response, HttpStatus.OK);
     }
+
+    private fun getProductResponse(e: Product): ProductResponse {
+        val brand = brandRepo.findById(e.manufacturer)
+            .orElseThrow { ElementNotFoundException("Element with the provided id does not exists") };
+
+        return ProductResponse(e.id, e.name, brand, e.productionDate, e.available)
+    };
 }
